@@ -3,11 +3,10 @@ package omar.mebarki;
 import com.google.common.collect.ImmutableMap;
 import com.upplication.s3fs.AmazonS3Factory;
 
+import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.net.URLDecoder;
+import java.nio.file.*;
 import java.text.MessageFormat;
 import java.util.Map;
 
@@ -24,8 +23,23 @@ public class AppMain {
         URI uri = URI.create(MessageFormat.format("s3://{0}:{1}@{2}", s3AccessKey, s3SecretKey, s3Server));
         FileSystem s3fs = FileSystems.newFileSystem(uri, env);
         Path bucketPath = s3fs.getPath("/" + s3BucketName);
-        Files.list(bucketPath)
-                .forEach(System.out::println);
-        System.out.println(bucketPath.getFileName());
+
+        Files.list(bucketPath).
+                forEach(path -> {
+                    System.out.println("-------------------------------------------");
+                    System.out.println("File Name:" + path.getFileName());
+                    try {
+                        Path target = Paths.get(URLDecoder.decode("target/" + path.getFileName(), "UTF-8"));
+                        if (!Files.isDirectory(path)) {
+                            System.out.println("copy to: " + target.getFileName());
+                            Files.copy(path, target, StandardCopyOption.REPLACE_EXISTING);
+                            System.out.println("deleted");
+                            Files.delete(path);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("-------------------------------------------");
+                });
     }
 }
