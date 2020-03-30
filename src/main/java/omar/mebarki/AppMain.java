@@ -29,12 +29,19 @@ public class AppMain {
                     System.out.println("-------------------------------------------");
                     System.out.println("File Name:" + path.getFileName());
                     try {
-                        Path target = Paths.get(URLDecoder.decode("target/" + path.getFileName(), "UTF-8"));
                         if (!Files.isDirectory(path)) {
-                            System.out.println("copy to: " + target.getFileName());
-                            Files.copy(path, target, StandardCopyOption.REPLACE_EXISTING);
-                            System.out.println("deleted");
-                            Files.delete(path);
+                            //Telecharge le fichier de puis S3
+                            Path downloadTarget = Paths.get(URLDecoder.decode("target/" + path.getFileName(), "UTF-8"));
+                            System.out.println("Download to: " + downloadTarget.getFileName());
+                            Files.copy(path, downloadTarget, StandardCopyOption.REPLACE_EXISTING);
+
+                            //Deplace le fichier à l'intérieur de S3
+                            Path s3MoveTarget = s3fs.getPath("/" + s3BucketName + "/" + URLDecoder.decode("target/" + path.getFileName(), "UTF-8"));
+                            System.out.println("Move to: " + s3MoveTarget.getFileName());
+                            Files.move(path, s3MoveTarget, StandardCopyOption.REPLACE_EXISTING);
+
+                            //System.out.println("deleted");
+                            //Files.delete(path);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
