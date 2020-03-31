@@ -12,9 +12,9 @@ import java.util.Map;
 
 public class AppMain {
     public static void main(String[] args) throws Exception {
-        String s3AccessKey = "minioadmin";
-        String s3SecretKey = "minioadmin";
-        String s3Server = "192.168.160.129:9000"; // example server name
+        String s3AccessKey = "newAccessKey";
+        String s3SecretKey = "newSecretKey";
+        String s3Server = "192.168.160.129:8000"; // example server name
         String s3BucketName = "omar"; // example bucket name
         Map<String, ?> env = ImmutableMap.<String, Object>builder()
                 .put(AmazonS3Factory.PROTOCOL, "HTTP")
