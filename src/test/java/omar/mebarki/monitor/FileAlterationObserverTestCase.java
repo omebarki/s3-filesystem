@@ -90,17 +90,17 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
     public void testDirectory() throws Exception {
         checkAndNotify();
         checkCollectionsEmpty("A");
-        final Path testDirA = Paths.get(testDir.getCanonicalPath(), "test-dir-A");
-        final Path testDirB = Paths.get(testDir.getCanonicalPath(), "test-dir-B");
-        final Path testDirC = Paths.get(testDir.getCanonicalPath(), "test-dir-C");
+        final Path testDirA = testDir.resolve("test-dir-A");
+        final Path testDirB = testDir.resolve("test-dir-B");
+        final Path testDirC = testDir.resolve("test-dir-C");
         Files.createDirectory(testDirA);
         Files.createDirectory(testDirB);
         Files.createDirectory(testDirC);
-        final Path testDirAFile1 = touch(Paths.get(testDirA.toString(), "A-file1.java"));
-        final Path testDirAFile2 = touch(Paths.get(testDirA.toString(), "A-file2.txt")); // filter should ignore this
-        final Path testDirAFile3 = touch(Paths.get(testDirA.toString(), "A-file3.java"));
-        Path testDirAFile4 = touch(Paths.get(testDirA.toString(), "A-file4.java"));
-        final Path testDirBFile1 = touch(Paths.get(testDirB.toString(), "B-file1.java"));
+        final Path testDirAFile1 = touch(testDirA.resolve("A-file1.java"));
+        final Path testDirAFile2 = touch(testDirA.resolve("A-file2.txt")); // filter should ignore this
+        final Path testDirAFile3 = touch(testDirA.resolve("A-file3.java"));
+        Path testDirAFile4 = touch(testDirA.resolve("A-file4.java"));
+        final Path testDirBFile1 = touch(testDirB.resolve("B-file1.java"));
 
         checkAndNotify();
         checkCollectionSizes("B", 3, 0, 0, 4, 0, 0);
@@ -124,7 +124,7 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
         assertTrue(listener.getChangedFiles().contains(testDirAFile4), "D testDirAFile4");
         assertTrue(listener.getDeletedFiles().contains(testDirBFile1), "D testDirBFile1");
 
-        deleteDirectoryRecursion(Paths.get(testDir.getCanonicalPath()));
+        deleteDirectoryRecursion(testDir);
         checkAndNotify();
         checkCollectionSizes("E", 0, 0, 2, 0, 0, 3);
         assertTrue(listener.getDeletedDirectories().contains(testDirA), "E testDirA");
@@ -133,7 +133,7 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
         assertTrue(listener.getDeletedFiles().contains(testDirAFile3), "E testDirAFile3");
         assertTrue(listener.getDeletedFiles().contains(testDirAFile4), "E testDirAFile4");
 
-        testDir.mkdir();
+        Files.createDirectory(testDir);
         checkAndNotify();
         checkCollectionsEmpty("F");
 
@@ -150,15 +150,15 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
     public void testFileCreate() throws Exception {
         checkAndNotify();
         checkCollectionsEmpty("A");
-        Path testDirA = Paths.get(testDir.getCanonicalPath(), "test-dir-A");
+        Path testDirA = testDir.resolve("test-dir-A");
         Files.createDirectory(testDirA);
-        touch(Paths.get(testDir.getCanonicalPath()));
+        touch(testDir);
         testDirA = touch(testDirA);
-        Path testDirAFile1 = Paths.get(testDirA.toString(), "A-file1.java");
-        final Path testDirAFile2 = touch(Paths.get(testDirA.toString(), "A-file2.java"));
-        Path testDirAFile3 = Paths.get(testDirA.toString(), "A-file3.java");
-        final Path testDirAFile4 = touch(Paths.get(testDirA.toString(), "A-file4.java"));
-        Path testDirAFile5 = Paths.get(testDirA.toString(), "A-file5.java");
+        Path testDirAFile1 = testDirA.resolve("A-file1.java");
+        final Path testDirAFile2 = touch(testDirA.resolve("A-file2.java"));
+        Path testDirAFile3 = testDirA.resolve("A-file3.java");
+        final Path testDirAFile4 = touch(testDirA.resolve("A-file4.java"));
+        Path testDirAFile5 = testDirA.resolve("A-file5.java");
 
         checkAndNotify();
         checkCollectionSizes("B", 1, 0, 0, 2, 0, 0);
@@ -211,15 +211,15 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
     public void testFileUpdate() throws Exception {
         checkAndNotify();
         checkCollectionsEmpty("A");
-        Path testDirA = Paths.get(testDir.getCanonicalPath(), "test-dir-A");
+        Path testDirA = testDir.resolve("test-dir-A");
         Files.createDirectory(testDirA);
-        touch(Paths.get(testDir.getCanonicalPath()));
+        touch(testDir);
         testDirA = touch(testDirA);
-        Path testDirAFile1 = touch(Paths.get(testDirA.toString(), "A-file1.java"));
-        final Path testDirAFile2 = touch(Paths.get(testDirA.toString(), "A-file2.java"));
-        Path testDirAFile3 = touch(Paths.get(testDirA.toString(), "A-file3.java"));
-        final Path testDirAFile4 = touch(Paths.get(testDirA.toString(), "A-file4.java"));
-        Path testDirAFile5 = touch(Paths.get(testDirA.toString(), "A-file5.java"));
+        Path testDirAFile1 = touch(testDirA.resolve("A-file1.java"));
+        final Path testDirAFile2 = touch(testDirA.resolve("A-file2.java"));
+        Path testDirAFile3 = touch(testDirA.resolve("A-file3.java"));
+        final Path testDirAFile4 = touch(testDirA.resolve("A-file4.java"));
+        Path testDirAFile5 = touch(testDirA.resolve("A-file5.java"));
 
         checkAndNotify();
         checkCollectionSizes("B", 1, 0, 0, 5, 0, 0);
@@ -269,15 +269,15 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
     public void testFileDelete() throws Exception {
         checkAndNotify();
         checkCollectionsEmpty("A");
-        Path testDirA = Paths.get(testDir.toString(), "test-dir-A");
+        Path testDirA = testDir.resolve("test-dir-A");
         Files.createDirectory(testDirA);
-        touch(Paths.get(testDir.getCanonicalPath()));
+        touch(testDir);
         testDirA = touch(testDirA);
-        final Path testDirAFile1 = touch(Paths.get(testDirA.toString(), "A-file1.java"));
-        final Path testDirAFile2 = touch(Paths.get(testDirA.toString(), "A-file2.java"));
-        final Path testDirAFile3 = touch(Paths.get(testDirA.toString(), "A-file3.java"));
-        final Path testDirAFile4 = touch(Paths.get(testDirA.toString(), "A-file4.java"));
-        final Path testDirAFile5 = touch(Paths.get(testDirA.toString(), "A-file5.java"));
+        final Path testDirAFile1 = touch(testDirA.resolve("A-file1.java"));
+        final Path testDirAFile2 = touch(testDirA.resolve("A-file2.java"));
+        final Path testDirAFile3 = touch(testDirA.resolve("A-file3.java"));
+        final Path testDirAFile4 = touch(testDirA.resolve("A-file4.java"));
+        final Path testDirAFile5 = touch(testDirA.resolve("A-file5.java"));
 
         assertTrue(Files.exists(testDirAFile1), "B testDirAFile1 exists");
         assertTrue(Files.exists(testDirAFile2), "B testDirAFile2 exists");
@@ -328,8 +328,8 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
      */
     @Test
     public void testObserveSingleFile() throws Exception {
-        final Path testDirA = Paths.get(testDir.getCanonicalPath(), "test-dir-A");
-        final Path testDirAFile1 = Paths.get(testDirA.toString(), "A-file1.java");
+        final Path testDirA = testDir.resolve("test-dir-A");
+        final Path testDirAFile1 = testDirA.resolve("A-file1.java");
         Files.createDirectory(testDirA);
 
         final NIOFileFilter nameFilter = p -> p.toString().equals(testDirAFile1.toString());
@@ -340,8 +340,8 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
 
         // Create
         touch(testDirAFile1);
-        Path testDirAFile2 = touch(Paths.get(testDirA.toString(), "A-file2.txt"));  //filter should ignore
-        Path testDirAFile3 = touch(Paths.get(testDirA.toString(), "A-file3.java")); // filter should ignore
+        Path testDirAFile2 = touch(testDirA.resolve("A-file2.txt"));  //filter should ignore
+        Path testDirAFile3 = touch(testDirA.resolve("A-file3.java")); // filter should ignore
         assertTrue(Files.exists(testDirAFile1), "B testDirAFile1 exists");
         assertTrue(Files.exists(testDirAFile2), "B testDirAFile2 exists");
         assertTrue(Files.exists(testDirAFile3), "B testDirAFile3 exists");
@@ -376,7 +376,7 @@ public class FileAlterationObserverTestCase extends AbstractMonitorTestCase {
     }
 
     /**
-     * Call {@link FileAlterationObserver#checkAndNotify()}.
+     * Call {@link NIOFileAlterationObserver#checkAndNotify()}.
      *
      * @throws Exception if an error occurs
      */

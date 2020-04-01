@@ -19,7 +19,6 @@ package omar.mebarki.monitor;
 import org.apache.commons.io.testtools.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -110,7 +109,7 @@ public class FileAlterationMonitorTestCase extends AbstractMonitorTestCase {
 
         // Create a File
         checkCollectionsEmpty("A");
-        Path file1 = touch(Paths.get(testDir.getCanonicalPath(), "file1.java"));
+        Path file1 = touch(testDir.resolve("file1.java"));
         checkFile("Create", file1, listener.getCreatedFiles());
         listener.clear();
 
@@ -154,7 +153,7 @@ public class FileAlterationMonitorTestCase extends AbstractMonitorTestCase {
         // Create a File
         checkCollectionsEmpty("A");
 
-        final Path file2 = touch(Paths.get(testDir.getCanonicalPath(), "file2.java"));
+        final Path file2 = touch(testDir.resolve("file2.java"));
         checkFile("Create", file2, listener.getCreatedFiles());
         listener.clear();
 

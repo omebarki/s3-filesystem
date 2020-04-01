@@ -16,13 +16,16 @@
  */
 package omar.mebarki.monitor;
 
+import com.google.common.collect.ImmutableMap;
+import com.upplication.s3fs.AmazonS3Factory;
+import omar.mebarki.demo.FileAlterationListenerImpl;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.*;
-import java.nio.file.attribute.FileTime;
+import java.text.MessageFormat;
+import java.util.Map;
 
 import static org.apache.commons.io.testtools.TestUtils.sleepQuietly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,8 +34,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * {@link NIOFileAlterationObserver} Test Case.
  */
-
-public abstract class AbstractMonitorTestCase {
+public abstract class S3AbstractMonitorTestCase {
+    protected static FileSystem s3fs;
+    protected Path tempDir;
+    protected String s3BucketName = "omar"; // example bucket name
 
     /**
      * File observer
@@ -44,11 +49,6 @@ public abstract class AbstractMonitorTestCase {
      */
     protected CollectionFileListener listener;
 
-    /**
-     * Directory for test files
-     */
-    @TempDir
-    protected Path testDir;
 
     /**
      * Time in milliseconds to pause in tests
@@ -57,16 +57,47 @@ public abstract class AbstractMonitorTestCase {
 
     @BeforeEach
     public void setUp() throws Exception {
-        final NIOFileFilter files = p -> !Files.isDirectory(p);
-        final NIOFileFilter javaSuffix = p -> p.toString().endsWith(".java");
+        String s3AccessKey = "newAccessKey";
+        String s3SecretKey = "newSecretKey";
+        String s3Server = "192.168.160.129:8000"; // example server name
+
+        Map<String, ?> env = ImmutableMap.<String, Object>builder()
+                .put(AmazonS3Factory.PROTOCOL, "HTTP")
+                .build();
+
+        if (s3fs == null) {
+            URI uri = URI.create(MessageFormat.format("s3://{0}:{1}@{2}", s3AccessKey, s3SecretKey, s3Server));
+            s3fs = FileSystems.newFileSystem(uri, env);
+        }
+
+        tempDir = s3fs.getPath("/" + s3BucketName, "tempDir");
+        if (Files.exists(tempDir)) {
+            deleteDirectoryRecursion(tempDir);
+        }
+        Files.createDirectory(tempDir);
+
+        final NIOFileFilter files = p -> (!Files.isDirectory(p));
+        final NIOFileFilter javaSuffix = p -> (p.toString().endsWith(".java"));
         final NIOFileFilter fileFilter = p -> (files.accept(p) && javaSuffix.accept(p));
 
-        final NIOFileFilter directories = p -> Files.isDirectory(p);
-        final NIOFileFilter visible = p -> !Files.isHidden(p);
+        final NIOFileFilter directories = p -> (Files.isDirectory(p));
+        final NIOFileFilter visible = p -> (!Files.isHidden(p));
         final NIOFileFilter dirFilter = p -> (directories.accept(p) && visible.accept(p));
 
         final NIOFileFilter filter = p -> (dirFilter.accept(p) || fileFilter.accept(p));
-        createObserver(testDir, filter);
+
+        createObserver(tempDir, filter);//TODO filtre
+    }
+
+    protected void createObserver(final Path file) {
+        observer = new NIOFileAlterationObserver(file);
+        observer.addListener(listener);
+        observer.addListener(new FileAlterationListenerImpl());
+        try {
+            observer.initialize();
+        } catch (final Exception e) {
+            fail("Observer init() threw " + e);
+        }
     }
 
     /**
@@ -135,7 +166,7 @@ public abstract class AbstractMonitorTestCase {
      * @return The file
      */
     protected Path touch(Path file) {
-        long lastModified = getLastModifiedTime(file);
+        long lastModified = 0;
         try {
 
             file = touchPath(file);
@@ -151,10 +182,41 @@ public abstract class AbstractMonitorTestCase {
     }
 
     public static Path touchPath(Path file) throws IOException {
+
         if (!Files.exists(file)) {
             file = Files.createFile(file);
         }
-        Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
+        if (!Files.isDirectory(file)) {
+            Files.delete(file);
+            file = Files.createFile(file);
+        }
+        return file;
+    }
+
+    protected Path touchDir(Path file) {
+        long lastModified = 0;
+        try {
+
+            file = touchPathDir(file);
+            while (lastModified == getLastModifiedTime(file)) {
+                sleepQuietly(pauseTime);
+                file = touchPathDir(file);
+            }
+        } catch (final Exception e) {
+            fail("Touching " + file + ": " + e);
+        }
+        sleepQuietly(pauseTime);
+        return file;
+    }
+
+    public Path touchPathDir(Path file) throws IOException {
+        if (!Files.exists(file)) {
+            file = Files.createDirectory(file);
+        }
+        if (Files.isDirectory(file)) {
+            deleteDirectoryRecursion(file);
+            file = Files.createDirectory(file);
+        }
         return file;
     }
 
