@@ -26,10 +26,11 @@
 package omar.mebarki.monitor;
 
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 @FunctionalInterface
-public interface S3FileFilter {
+public interface NIOFileFilter {
 
     /**
      * Tests whether or not the specified abstract pathname should be
@@ -39,5 +40,5 @@ public interface S3FileFilter {
      * @return  <code>true</code> if and only if <code>pathname</code>
      *          should be included
      */
-    boolean accept(Path pathname);
+    boolean accept(Path pathname) throws IOException;
 }

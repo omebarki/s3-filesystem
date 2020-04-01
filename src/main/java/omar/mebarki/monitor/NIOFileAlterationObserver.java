@@ -30,13 +30,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
-public class S3FileAlterationObserver implements Serializable {
+public class NIOFileAlterationObserver implements Serializable {
 
     private static Path[] EMPTY_FILE_ARRAY = new Path[0];
     private static final long serialVersionUID = 1185122225658782848L;
-    private final List<S3FileAlterationListener> listeners = new CopyOnWriteArrayList<>();
-    private final S3FileEntry rootEntry;
-    private final S3FileFilter fileFilter;
+    private final List<NIOFileAlterationListener> listeners = new CopyOnWriteArrayList<>();
+    private final NIOFileEntry rootEntry;
+    private final NIOFileFilter fileFilter;
     private final Comparator<Path> comparator;
 
     /**
@@ -44,7 +44,7 @@ public class S3FileAlterationObserver implements Serializable {
      *
      * @param directoryName the name of the directory to observe
      */
-    public S3FileAlterationObserver(final String directoryName, FileSystem s3fs) {
+    public NIOFileAlterationObserver(final String directoryName, FileSystem s3fs) {
         this(s3fs.getPath(directoryName));
     }
 
@@ -54,7 +54,7 @@ public class S3FileAlterationObserver implements Serializable {
      * @param directoryName the name of the directory to observe
      * @param fileFilter    The file filter or null if none
      */
-    public S3FileAlterationObserver(final String directoryName, FileSystem s3fs, final S3FileFilter fileFilter) {
+    public NIOFileAlterationObserver(final String directoryName, FileSystem s3fs, final NIOFileFilter fileFilter) {
         this(s3fs.getPath(directoryName), fileFilter);
     }
 
@@ -63,7 +63,7 @@ public class S3FileAlterationObserver implements Serializable {
      *
      * @param directory the directory to observe
      */
-    public S3FileAlterationObserver(final Path directory) {
+    public NIOFileAlterationObserver(final Path directory) {
         this(directory, null);
     }
 
@@ -74,8 +74,8 @@ public class S3FileAlterationObserver implements Serializable {
      * @param directory       the directory to observe
      * @param fileFilter      The file filter or null if none
      */
-    public S3FileAlterationObserver(final Path directory, final S3FileFilter fileFilter) {
-        this(new S3FileEntry(directory), fileFilter);
+    public NIOFileAlterationObserver(final Path directory, final NIOFileFilter fileFilter) {
+        this(new NIOFileEntry(directory), fileFilter);
     }
 
     /**
@@ -85,7 +85,7 @@ public class S3FileAlterationObserver implements Serializable {
      * @param rootEntry       the root directory to observe
      * @param fileFilter      The file filter or null if none
      */
-    protected S3FileAlterationObserver(final S3FileEntry rootEntry, final S3FileFilter fileFilter) {
+    protected NIOFileAlterationObserver(final NIOFileEntry rootEntry, final NIOFileFilter fileFilter) {
         if (rootEntry == null) {
             throw new IllegalArgumentException("Root entry is missing");
         }
@@ -113,7 +113,7 @@ public class S3FileAlterationObserver implements Serializable {
      * @return the fileFilter
      * @since 2.1
      */
-    public S3FileFilter getFileFilter() {
+    public NIOFileFilter getFileFilter() {
         return fileFilter;
     }
 
@@ -122,7 +122,7 @@ public class S3FileAlterationObserver implements Serializable {
      *
      * @param listener The file system listener
      */
-    public void addListener(final S3FileAlterationListener listener) {
+    public void addListener(final NIOFileAlterationListener listener) {
         if (listener != null) {
             listeners.add(listener);
         }
@@ -133,7 +133,7 @@ public class S3FileAlterationObserver implements Serializable {
      *
      * @param listener The file system listener
      */
-    public void removeListener(final S3FileAlterationListener listener) {
+    public void removeListener(final NIOFileAlterationListener listener) {
         if (listener != null) {
             while (listeners.remove(listener)) {
             }
@@ -145,7 +145,7 @@ public class S3FileAlterationObserver implements Serializable {
      *
      * @return The file system listeners
      */
-    public Iterable<S3FileAlterationListener> getListeners() {
+    public Iterable<NIOFileAlterationListener> getListeners() {
         return listeners;
     }
 
@@ -156,7 +156,7 @@ public class S3FileAlterationObserver implements Serializable {
      */
     public void initialize() throws Exception {
         rootEntry.refresh(rootEntry.getFile());
-        final S3FileEntry[] children = doListFiles(rootEntry.getFile(), rootEntry);
+        final NIOFileEntry[] children = doListFiles(rootEntry.getFile(), rootEntry);
         rootEntry.setChildren(children);
     }
 
@@ -174,7 +174,7 @@ public class S3FileAlterationObserver implements Serializable {
     public void checkAndNotify() {
 
         /* fire onStart() */
-        for (final S3FileAlterationListener listener : listeners) {
+        for (final NIOFileAlterationListener listener : listeners) {
             listener.onStart(this);
         }
 
@@ -189,7 +189,7 @@ public class S3FileAlterationObserver implements Serializable {
         }
 
         /* fire onStop() */
-        for (final S3FileAlterationListener listener : listeners) {
+        for (final NIOFileAlterationListener listener : listeners) {
             listener.onStop(this);
         }
     }
@@ -201,10 +201,10 @@ public class S3FileAlterationObserver implements Serializable {
      * @param previous The original list of files
      * @param files    The current list of files
      */
-    private void checkAndNotify(final S3FileEntry parent, final S3FileEntry[] previous, final Path[] files) {
+    private void checkAndNotify(final NIOFileEntry parent, final NIOFileEntry[] previous, final Path[] files) {
         int c = 0;
-        final S3FileEntry[] current = files.length > 0 ? new S3FileEntry[files.length] : S3FileEntry.EMPTY_ENTRIES;
-        for (final S3FileEntry entry : previous) {
+        final NIOFileEntry[] current = files.length > 0 ? new NIOFileEntry[files.length] : NIOFileEntry.EMPTY_ENTRIES;
+        for (final NIOFileEntry entry : previous) {
             while (c < files.length && comparator.compare(entry.getFile(), files[c]) > 0) {
                 current[c] = createS3FileEntry(parent, files[c]);
                 doCreate(current[c]);
@@ -234,10 +234,10 @@ public class S3FileAlterationObserver implements Serializable {
      * @param file   The file to create an entry for
      * @return A new file entry
      */
-    private S3FileEntry createS3FileEntry(final S3FileEntry parent, final Path file) {
-        final S3FileEntry entry = parent.newChildInstance(file);
+    private NIOFileEntry createS3FileEntry(final NIOFileEntry parent, final Path file) {
+        final NIOFileEntry entry = parent.newChildInstance(file);
         entry.refresh(file);
-        final S3FileEntry[] children = doListFiles(file, entry);
+        final NIOFileEntry[] children = doListFiles(file, entry);
         entry.setChildren(children);
         return entry;
     }
@@ -249,9 +249,9 @@ public class S3FileAlterationObserver implements Serializable {
      * @param entry the parent entry
      * @return The child files
      */
-    private S3FileEntry[] doListFiles(final Path file, final S3FileEntry entry) {
+    private NIOFileEntry[] doListFiles(final Path file, final NIOFileEntry entry) {
         final Path[] files = listFiles(file);
-        final S3FileEntry[] children = files.length > 0 ? new S3FileEntry[files.length] : S3FileEntry.EMPTY_ENTRIES;
+        final NIOFileEntry[] children = files.length > 0 ? new NIOFileEntry[files.length] : NIOFileEntry.EMPTY_ENTRIES;
         for (int i = 0; i < files.length; i++) {
             children[i] = createS3FileEntry(entry, files[i]);
         }
@@ -263,16 +263,16 @@ public class S3FileAlterationObserver implements Serializable {
      *
      * @param entry The file entry
      */
-    private void doCreate(final S3FileEntry entry) {
-        for (final S3FileAlterationListener listener : listeners) {
+    private void doCreate(final NIOFileEntry entry) {
+        for (final NIOFileAlterationListener listener : listeners) {
             if (entry.isDirectory()) {
                 listener.onDirectoryCreate(entry.getFile());
             } else {
                 listener.onFileCreate(entry.getFile());
             }
         }
-        final S3FileEntry[] children = entry.getChildren();
-        for (final S3FileEntry aChildren : children) {
+        final NIOFileEntry[] children = entry.getChildren();
+        for (final NIOFileEntry aChildren : children) {
             doCreate(aChildren);
         }
     }
@@ -283,9 +283,9 @@ public class S3FileAlterationObserver implements Serializable {
      * @param entry The previous file system entry
      * @param file  The current file
      */
-    private void doMatch(final S3FileEntry entry, final Path file) {
+    private void doMatch(final NIOFileEntry entry, final Path file) {
         if (entry.refresh(file)) {
-            for (final S3FileAlterationListener listener : listeners) {
+            for (final NIOFileAlterationListener listener : listeners) {
                 if (entry.isDirectory()) {
                     listener.onDirectoryChange(file);
                 } else {
@@ -300,8 +300,8 @@ public class S3FileAlterationObserver implements Serializable {
      *
      * @param entry The file entry
      */
-    private void doDelete(final S3FileEntry entry) {
-        for (final S3FileAlterationListener listener : listeners) {
+    private void doDelete(final NIOFileEntry entry) {
+        for (final NIOFileAlterationListener listener : listeners) {
             if (entry.isDirectory()) {
                 listener.onDirectoryDelete(entry.getFile());
             } else {
@@ -340,7 +340,7 @@ public class S3FileAlterationObserver implements Serializable {
         return listDir(dir, null);
     }
 
-    public Path[] listDir(Path dir, S3FileFilter fileFilter) throws IOException {
+    public Path[] listDir(Path dir, NIOFileFilter fileFilter) throws IOException {
         List<Path> fileList = new ArrayList<>();
         Path[] files = new Path[0];
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {

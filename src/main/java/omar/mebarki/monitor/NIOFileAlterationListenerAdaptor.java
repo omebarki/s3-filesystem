@@ -16,72 +16,88 @@
  */
 package omar.mebarki.monitor;
 
+
 import java.nio.file.Path;
 
 /**
- * A listener that receives events of file system modifications.
- * <p>
- * Register {@link S3FileAlterationListener}s with a {@link S3FileAlterationObserver}.
+ * Convenience {@link NIOFileAlterationListener} implementation that does nothing.
  *
  * @version $Id$
- * @see S3FileAlterationObserver
+ * @see NIOFileAlterationObserver
  * @since 2.0
  */
-public interface S3FileAlterationListener {
+public class NIOFileAlterationListenerAdaptor implements NIOFileAlterationListener {
 
     /**
      * File system observer started checking event.
      *
-     * @param observer The file system observer
+     * @param observer The file system observer (ignored)
      */
-    void onStart(final S3FileAlterationObserver observer);
+    @Override
+    public void onStart(final NIOFileAlterationObserver observer) {
+    }
 
     /**
      * Directory created Event.
      *
-     * @param directory The directory created
+     * @param directory The directory created (ignored)
      */
-    void onDirectoryCreate(final Path directory);
+    @Override
+    public void onDirectoryCreate(final Path directory) {
+    }
 
     /**
      * Directory changed Event.
      *
-     * @param directory The directory changed
+     * @param directory The directory changed (ignored)
      */
-    void onDirectoryChange(final Path directory);
+    @Override
+    public void onDirectoryChange(final Path directory) {
+    }
 
     /**
      * Directory deleted Event.
      *
-     * @param directory The directory deleted
+     * @param directory The directory deleted (ignored)
      */
-    void onDirectoryDelete(final Path directory);
+    @Override
+    public void onDirectoryDelete(final Path directory) {
+    }
 
     /**
      * File created Event.
      *
-     * @param file The file created
+     * @param file The file created (ignored)
      */
-    void onFileCreate(final Path file);
+    @Override
+    public void onFileCreate(final Path file) {
+    }
 
     /**
      * File changed Event.
      *
-     * @param file The file changed
+     * @param file The file changed (ignored)
      */
-    void onFileChange(final Path file);
+    @Override
+    public void onFileChange(final Path file) {
+    }
 
     /**
      * File deleted Event.
      *
-     * @param file The file deleted
+     * @param file The file deleted (ignored)
      */
-    void onFileDelete(final Path file);
+    @Override
+    public void onFileDelete(final Path file) {
+    }
 
     /**
      * File system observer finished checking event.
      *
-     * @param observer The file system observer
+     * @param observer The file system observer (ignored)
      */
-    void onStop(final S3FileAlterationObserver observer);
+    @Override
+    public void onStop(final NIOFileAlterationObserver observer) {
+    }
+
 }

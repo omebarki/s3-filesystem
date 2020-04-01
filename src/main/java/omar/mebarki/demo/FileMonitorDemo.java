@@ -2,8 +2,8 @@ package omar.mebarki.demo;
 
 import com.google.common.collect.ImmutableMap;
 import com.upplication.s3fs.AmazonS3Factory;
-import omar.mebarki.monitor.S3FileAlterationMonitor;
-import omar.mebarki.monitor.S3FileAlterationObserver;
+import omar.mebarki.monitor.NIOFileAlterationMonitor;
+import omar.mebarki.monitor.NIOFileAlterationObserver;
 
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -38,13 +38,13 @@ public class FileMonitorDemo {
         final Path directory = bucketPath;
 
         // Create a new FileAlterationObserver on the given directory
-        S3FileAlterationObserver fao = new S3FileAlterationObserver(directory);
+        NIOFileAlterationObserver fao = new NIOFileAlterationObserver(directory);
 
         // Create a new FileAlterationListenerImpl and pass it the previously created FileAlterationObserver
         fao.addListener(new FileAlterationListenerImpl());
 
         // Create a new FileAlterationMonitor with the given pollingInterval period
-        final S3FileAlterationMonitor monitor = new S3FileAlterationMonitor(
+        final NIOFileAlterationMonitor monitor = new NIOFileAlterationMonitor(
                 pollingInterval);
 
         // Add the previously created FileAlterationObserver to FileAlterationMonitor

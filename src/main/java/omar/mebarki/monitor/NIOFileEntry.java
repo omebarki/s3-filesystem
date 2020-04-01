@@ -23,14 +23,14 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 
 
-public class S3FileEntry implements Serializable {
+public class NIOFileEntry implements Serializable {
 
     private static final long serialVersionUID = -2505664948818681153L;
 
-    static final S3FileEntry[] EMPTY_ENTRIES = new S3FileEntry[0];
+    static final NIOFileEntry[] EMPTY_ENTRIES = new NIOFileEntry[0];
 
-    private final S3FileEntry parent;
-    private S3FileEntry[] children;
+    private final NIOFileEntry parent;
+    private NIOFileEntry[] children;
     private final Path file;
     private String name;
     private boolean exists;
@@ -43,7 +43,7 @@ public class S3FileEntry implements Serializable {
      *
      * @param file The file being monitored
      */
-    public S3FileEntry(final Path file) {
+    public NIOFileEntry(final Path file) {
         this(null, file);
     }
 
@@ -53,7 +53,7 @@ public class S3FileEntry implements Serializable {
      * @param parent The parent
      * @param file   The file being monitored
      */
-    public S3FileEntry(final S3FileEntry parent, final Path file) {
+    public NIOFileEntry(final NIOFileEntry parent, final Path file) {
         if (file == null) {
             throw new IllegalArgumentException("Path is missing");
         }
@@ -119,8 +119,8 @@ public class S3FileEntry implements Serializable {
      * @param file The child file
      * @return a new child instance
      */
-    public S3FileEntry newChildInstance(final Path file) {
-        return new S3FileEntry(this, file);
+    public NIOFileEntry newChildInstance(final Path file) {
+        return new NIOFileEntry(this, file);
     }
 
     /**
@@ -128,7 +128,7 @@ public class S3FileEntry implements Serializable {
      *
      * @return the parent entry
      */
-    public S3FileEntry getParent() {
+    public NIOFileEntry getParent() {
         return parent;
     }
 
@@ -148,7 +148,7 @@ public class S3FileEntry implements Serializable {
      * array if the file is not a directory or the
      * directory is empty
      */
-    public S3FileEntry[] getChildren() {
+    public NIOFileEntry[] getChildren() {
         return children != null ? children : EMPTY_ENTRIES;
     }
 
@@ -157,7 +157,7 @@ public class S3FileEntry implements Serializable {
      *
      * @param children This directory's files, may be null
      */
-    public void setChildren(final S3FileEntry[] children) {
+    public void setChildren(final NIOFileEntry[] children) {
         this.children = children;
     }
 

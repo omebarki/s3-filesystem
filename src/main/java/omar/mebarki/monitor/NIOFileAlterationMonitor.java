@@ -6,16 +6,16 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * A runnable that spawns a monitoring thread triggering any
- * registered {@link S3FileAlterationObserver} at a specified interval.
+ * registered {@link NIOFileAlterationObserver} at a specified interval.
  *
  * @version $Id$
- * @see S3FileAlterationObserver
+ * @see NIOFileAlterationObserver
  * @since 2.0
  */
-public final class S3FileAlterationMonitor implements Runnable {
+public final class NIOFileAlterationMonitor implements Runnable {
 
     private final long interval;
-    private final List<S3FileAlterationObserver> observers = new CopyOnWriteArrayList<>();
+    private final List<NIOFileAlterationObserver> observers = new CopyOnWriteArrayList<>();
     private Thread thread = null;
     private ThreadFactory threadFactory;
     private volatile boolean running = false;
@@ -23,7 +23,7 @@ public final class S3FileAlterationMonitor implements Runnable {
     /**
      * Construct a monitor with a default interval of 10 seconds.
      */
-    public S3FileAlterationMonitor() {
+    public NIOFileAlterationMonitor() {
         this(10000);
     }
 
@@ -33,7 +33,7 @@ public final class S3FileAlterationMonitor implements Runnable {
      * @param interval The amount of time in milliseconds to wait between
      *                 checks of the file system
      */
-    public S3FileAlterationMonitor(final long interval) {
+    public NIOFileAlterationMonitor(final long interval) {
         this.interval = interval;
     }
 
@@ -44,10 +44,10 @@ public final class S3FileAlterationMonitor implements Runnable {
      *                  checks of the file system
      * @param observers The set of observers to add to the monitor.
      */
-    public S3FileAlterationMonitor(final long interval, final S3FileAlterationObserver... observers) {
+    public NIOFileAlterationMonitor(final long interval, final NIOFileAlterationObserver... observers) {
         this(interval);
         if (observers != null) {
-            for (final S3FileAlterationObserver observer : observers) {
+            for (final NIOFileAlterationObserver observer : observers) {
                 addObserver(observer);
             }
         }
@@ -76,7 +76,7 @@ public final class S3FileAlterationMonitor implements Runnable {
      *
      * @param observer The file system observer to add
      */
-    public void addObserver(final S3FileAlterationObserver observer) {
+    public void addObserver(final NIOFileAlterationObserver observer) {
         if (observer != null) {
             observers.add(observer);
         }
@@ -87,7 +87,7 @@ public final class S3FileAlterationMonitor implements Runnable {
      *
      * @param observer The file system observer to remove
      */
-    public void removeObserver(final S3FileAlterationObserver observer) {
+    public void removeObserver(final NIOFileAlterationObserver observer) {
         if (observer != null) {
             while (observers.remove(observer)) {
             }
@@ -95,12 +95,12 @@ public final class S3FileAlterationMonitor implements Runnable {
     }
 
     /**
-     * Returns the set of {@link S3FileAlterationObserver} registered with
+     * Returns the set of {@link NIOFileAlterationObserver} registered with
      * this monitor.
      *
-     * @return The set of {@link S3FileAlterationObserver}
+     * @return The set of {@link NIOFileAlterationObserver}
      */
-    public Iterable<S3FileAlterationObserver> getObservers() {
+    public Iterable<NIOFileAlterationObserver> getObservers() {
         return observers;
     }
 
@@ -113,7 +113,7 @@ public final class S3FileAlterationMonitor implements Runnable {
         if (running) {
             throw new IllegalStateException("Monitor is already running");
         }
-        for (final S3FileAlterationObserver observer : observers) {
+        for (final NIOFileAlterationObserver observer : observers) {
             observer.initialize();
         }
         running = true;
@@ -152,7 +152,7 @@ public final class S3FileAlterationMonitor implements Runnable {
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        for (final S3FileAlterationObserver observer : observers) {
+        for (final NIOFileAlterationObserver observer : observers) {
             observer.destroy();
         }
     }
@@ -163,7 +163,7 @@ public final class S3FileAlterationMonitor implements Runnable {
     @Override
     public void run() {
         while (running) {
-            for (final S3FileAlterationObserver observer : observers) {
+            for (final NIOFileAlterationObserver observer : observers) {
                 observer.checkAndNotify();
             }
             if (!running) {

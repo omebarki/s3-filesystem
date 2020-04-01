@@ -1,18 +1,18 @@
 package omar.mebarki.demo;
 
-import omar.mebarki.monitor.S3FileAlterationListener;
-import omar.mebarki.monitor.S3FileAlterationObserver;
+import omar.mebarki.monitor.NIOFileAlterationListener;
+import omar.mebarki.monitor.NIOFileAlterationObserver;
 
 import java.nio.file.Path;
 
 /**
  * @author ashraf
  */
-public class FileAlterationListenerImpl implements S3FileAlterationListener {
+public class FileAlterationListenerImpl implements NIOFileAlterationListener {
 
 
     @Override
-    public void onStart(final S3FileAlterationObserver observer) {
+    public void onStart(final NIOFileAlterationObserver observer) {
         System.out.println("The FileListener has started on "
                 + observer.getDirectory());
     }
@@ -60,7 +60,7 @@ public class FileAlterationListenerImpl implements S3FileAlterationListener {
     }
 
     @Override
-    public void onStop(final S3FileAlterationObserver observer) {
+    public void onStop(final NIOFileAlterationObserver observer) {
         System.out.println("The FileListener has stopped on "
                 + observer.getDirectory());
     }
